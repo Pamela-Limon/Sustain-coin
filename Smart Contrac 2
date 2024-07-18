@@ -1,0 +1,67 @@
+This is our second smart contract option, this one will be deployed in Hedera 
+
+
+pragma solidity ^0.8.18;
+import "@openzeppelin/contracts@4.9.3/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts@4.9.3/access/Ownable.sol";
+contract RVMCoin is ERC20, Ownable {
+    // Mapping to store the total burned tokens for each address
+    mapping(address => uint256) public burnedTokens;
+
+    // Mapping to store the reward amounts for each material type
+    mapping(string => uint256) public materialRewards;
+
+    // Event to log the burn operation
+    event TokensBurned(address indexed burner, uint256 amount, uint256 totalBurned);
+    
+    // Event to log issued tokens based on recycled materials
+    event TokensIssued(address indexed recipient, uint256 amount, string material);
+
+    // Token constructor
+     constructor() ERC20("RVMCoin", "RVM") {
+        _mint(msg.sender, 100000 * 10  **3) ; // Mint initial supply to contract owner
+        
+        // Set default rewards for materials
+        materialRewards["Glass"] = 10 * 10 **3;
+        materialRewards["Aluminum"] = 20 * 10  ** 3;
+        materialRewards["Plastic"] = 15 * 10  **3;
+    
+    }
+
+    // Override decimals function to set token precision
+    function decimals() public view virtual override returns (uint8) {
+        return 3; // Set to 3 decimal places
+    }
+
+    // Minting function accessible only by the contract owner
+    function mint(address to, uint256 amount) public onlyOwner {
+        _mint(to, amount);
+    }
+
+    // Function to issue tokens for returned bottles
+    function issueTokens(address recipient, uint256 amount) external onlyOwner {
+        _mint(recipient, amount);
+        emit TokensIssued(recipient, amount, "Custom");
+    }
+
+    // Function to burn tokens and record the proof of burn
+    function burn(uint256 amount) external {
+        _burn(msg.sender, amount);
+        burnedTokens[msg.sender] += amount;
+        emit TokensBurned(msg.sender, amount, burnedTokens[msg.sender]);
+    }
+
+    // Function to issue tokens based on recycled material type
+    function issueTokensByMaterial(address recipient, string memory material) external onlyOwner {
+        uint256 reward = materialRewards[material];
+        require(reward > 0, "Invalid material type");
+
+        _mint(recipient, reward);
+        emit TokensIssued(recipient, reward, material);
+    }
+
+    // Function to set reward amounts for each material type
+    function setMaterialReward(string memory material, uint256 reward) external onlyOwner {
+        materialRewards[material] = reward;
+    }
+}
