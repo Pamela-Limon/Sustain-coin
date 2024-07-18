@@ -1,0 +1,22 @@
+Deployed Coontract
+
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.18;
+import "@openzeppelin/contracts@4.9.3/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts@4.9.3/access/Ownable.sol";
+
+contract Sustainchain is ERC20, Ownable {
+    uint256 immutable TOTALSUPPLY;
+    uint256 private currentSupply;
+    constructor() ERC20("recycletoken  ", "RK") {
+      TOTALSUPPLY= 5000*10**18;
+    }
+
+    function mint(address to, uint256 amount) public onlyOwner{
+        if  (currentSupply+amount>=TOTALSUPPLY){
+            revert();
+        }
+        _mint(to, amount);
+        currentSupply+=amount;
+    }
+}
