@@ -1,4 +1,4 @@
-# SustainChain and Sustain-coin
+# SustainChain and  our SustainCoin
 #### Integration of Blockchain in Recycling
 
 **Objective:**
